@@ -1,0 +1,39 @@
+services:
+  mariadb:
+    image: mariadb:11.8.1-rc
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      # Для доп. пользователя требуется задавать через конфиг права на БД.
+      # MYSQL_USER: student-csu
+      # MYSQL_PASSWORD: Cneltyn2013
+      # MYSQL_DATABASE: demo
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+      image: phpmyadmin:5.2.2
+      restart: always
+      depends_on:
+        - mariadb
+      environment:
+        PMA_ARBITRARY: 1
+        PMA_HOST: mariadb
+        PMA_PORT: 3306
+        PMA_USER: root # student-csu
+        PMA_PASSWORD: root # Cneltyn2013
+      ports:
+        - 8081:80
+
+  php:
+    image: php:8.4-rc-apache-bullseye
+    restart: always
+    volumes:
+      - ./app:/var/www/html:ro
+    depends_on:
+      - mariadb
+    ports:
+      - 8080:80
+
+volumes:
+  db_data:
